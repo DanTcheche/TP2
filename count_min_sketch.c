@@ -68,11 +68,11 @@ size_t obtener_max(count_min_sketch_t* sketch, unsigned long pos_1, unsigned lon
 //		PRIMITIVAS DEL SKETCH
 
 count_min_sketch_t* crear_sketch(){
-	count_min_sketch->array_1[TAM_PRIMO];
-	count_min_sketch->array_2[TAM_PRIMO];
-	count_min_sketch->array_3[TAM_PRIMO];
-	count_min_sketch->cant = 0;
-	hash_t hash = hash_crear(NULL);
+	count_min_sketch_t* sketch = malloc(sizeof(count_min_sketch_t));
+	sketch->array_1 = malloc(sizeof(size_t)*TAM_PRIMO);
+	sketch->array_2 = malloc(sizeof(size_t)*TAM_PRIMO);
+	sketch->array_3 = malloc(sizeof(size_t)*TAM_PRIMO);
+	sketch->cant = 0;
 }
 
 void procesar_dato(count_min_sketch_t* sketch, char* clave){
@@ -82,7 +82,6 @@ void procesar_dato(count_min_sketch_t* sketch, char* clave){
 	sketch->array_1[pos_1]++;
 	sketch->array_2[pos_2]++;
 	sketch->array_3[pos_3]++;
-	hash_guardar(hash, clave, NULL);
 }
 
 size_t cant_apariciones(count_min_sketch_t* sketch, char* clave){
@@ -93,7 +92,12 @@ size_t cant_apariciones(count_min_sketch_t* sketch, char* clave){
 	
 }
 
-//destruir
+void sketch_destruir(count_min_sketch_t* sketch){
+	free(sketch->array_1);
+	free(sketch->array_2);
+	free(sketch->array_3);
+	free(sketch)
+}
 
 
 
