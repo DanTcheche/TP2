@@ -4,7 +4,7 @@
 #include "count_min_sketch.h"
 #define TAM_PRIMO 105167
 
-typedef unsigned long (funcion_de_hash_t*);
+typedef unsigned long (*funcion_de_hash_t);
 
 typedef struct count_min_sketch{
 	size_t* array_1;
@@ -24,7 +24,7 @@ unsigned long funcion_hash_1(unsigned char *str){ //djb2
     return hash;
 }
 
-unsigned int funcion_hash_2(unsigned char *message) { //crc32b
+unsigned long funcion_hash_2(unsigned char *message) { //crc32b
    int i, j;
    unsigned int byte, crc, mask;
 
@@ -46,14 +46,14 @@ unsigned long funcion_hash_3(char *str) { //sdbm
         unsigned long hash = 0;
         int c;
 
-        while (c = *str++)
+        while (c = (*(str++)))
             hash = c + (hash << 6) + (hash << 16) - hash;
 
         return hash;
     }
 
 
-unsigned long obtener_indice(char* clave, funcion_de_hash_t* funcion, cant){
+unsigned long obtener_indice(char* clave, funcion_de_hash_t* funcion, size_t cant){
 	unsigned long pos = funcion(clave);
 	pos = pos%cant;
 	return pos;
@@ -73,21 +73,22 @@ count_min_sketch_t* crear_sketch(){
 	sketch->array_2 = malloc(sizeof(size_t)*TAM_PRIMO);
 	sketch->array_3 = malloc(sizeof(size_t)*TAM_PRIMO);
 	sketch->cant = 0;
+	return sketch;
 }
 
 void procesar_dato(count_min_sketch_t* sketch, char* clave){
-	unsigned long pos_1 = obtener_indice(clave, funcion_hash_1, count_min_sketch->cant);
-	unsigned long pos_2 = obtener_indice(clave, funcion_hash_2, count_min_sketch->cant);
-	unsigned long pos_3 = obtener_indice(clave, funcion_hash_3, count_min_sketch->cant);
+	unsigned long pos_1 = obtener_indice(clave, funcion_hash_1, sketch->cant);
+	unsigned long pos_2 = obtener_indice(clave, funcion_hash_2, sketch->cant);
+	unsigned long pos_3 = obtener_indice(clave, funcion_hash_3, sketch->cant);
 	sketch->array_1[pos_1]++;
 	sketch->array_2[pos_2]++;
 	sketch->array_3[pos_3]++;
 }
 
 size_t cant_apariciones(count_min_sketch_t* sketch, char* clave){
-	unsigned long pos_1 = obtener_indice(clave, funcion_hash_1, count_min_sketch->cant);
-	unsigned long pos_2 = obtener_indice(clave, funcion_hash_2, count_min_sketch->cant);
-	unsigned long pos_3 = obtener_indice(clave, funcion_hash_3, count_min_sketch->cant);
+	unsigned long pos_1 = obtener_indice(clave, funcion_hash_1, sketch->cant);
+	unsigned long pos_2 = obtener_indice(clave, funcion_hash_2, sketch->cant);
+	unsigned long pos_3 = obtener_indice(clave, funcion_hash_3, sketch->cant);
 	return obtener_max(sketch, pos_1, pos_2, pos_3);
 }
 
@@ -95,7 +96,7 @@ void sketch_destruir(count_min_sketch_t* sketch){
 	free(sketch->array_1);
 	free(sketch->array_2);
 	free(sketch->array_3);
-	free(sketch)
+	free(sketch);
 }
 
 
