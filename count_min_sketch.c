@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "count_min_sketch.h"
 #define TAM_PRIMO 105167
 
 typedef unsigned long (funcion_de_hash_t*);

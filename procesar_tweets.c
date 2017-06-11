@@ -2,7 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "hash.h"
 #define ERROR_PARAMETROS -4
+
+typedef struct tweet{
+   char* hash;
+   size_t apariciones;
+}tweet_t;
+
 
 /*Función que verifica que la cantidad de parametros sea correcta y que ambos
 parametro sean dígitos.*/
@@ -20,6 +27,7 @@ bool chequear_parametros(int argc, char* argv[]){
    return true;
 }
 
+/*Dado un char, se fija si esta compuesto unicamente por digitos.*/
 bool chequear_digitos(char* parametro){
    for(int i = 0; parametro[i] != '\0'; i++){
       if(!isdigit(cantidad[i])){
@@ -34,5 +42,5 @@ int main(int argc, char* argv[]){
    if(!(chequear_parametros(argc, argv))) return ERROR_PARAMETROS;
    filesplit(argv[1], atoi(argv[2]));
    return 0;
-   
+
 }
