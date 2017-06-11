@@ -1,13 +1,19 @@
 #include "hash.h"
-#include "strutil.h"
 #define TAM_PRIMO 105167
 
+typedef unsigned long (funcion_de_hash_t*);
+
 typedef struct count_min_sketch{
-	size_t* array1;
-	size_t* array2;
-	size_t* array3;
+	size_t* array_1;
+	size_t* array_2;
+	size_t* array_3;
 	size_t cant;
 }count_min_sketch_t;
+
+typedef struct tweet{
+	char* hash;
+	size_t apariciones;
+}tweet_t;
 
 //		FUNCIONES DE HASHING
 
@@ -47,24 +53,48 @@ long funcion_hash_3(char *str, int len) { //sdbm
 	return n;
 }
 
+unsigned long obtener_indice(char* clave, funcion_de_hash_t* funcion, cant){
+	unsigned long pos = funcion(clave);
+	pos = pos%cant;
+	return pos;
+}
+
+size_t obtener_max(count_min_sketch_t* sketch, unsigned long pos_1, unsigned long pos_2, unsigned long pos_3){
+	if((sketch->array_1[pos_1]<sketch->array_2[pos_2])&&(sketch->array_1[pos_1]<sketch->array_3[pos_3])) return sketch->array_1[pos_1];
+	if((sketch->array_1[pos_2]<sketch->array_2[pos_1])&&(sketch->array_2[pos_2]<sketch->array_3[pos_3])) return sketch->array_2[pos_2];
+	return sketch->array_3[pos_3];
+}
+
 //		PRIMITIVAS DEL SKETCH
 
 count_min_sketch_t* crear_sketch(){
-	count_min_sketch->array1[TAM_PRIMO];
-	count_min_sketch->array2[TAM_PRIMO];
-	count_min_sketch->array3[TAM_PRIMO];
+	count_min_sketch->array_1[TAM_PRIMO];
+	count_min_sketch->array_2[TAM_PRIMO];
+	count_min_sketch->array_3[TAM_PRIMO];
 	count_min_sketch->cant = 0;
+	hash_t hash = hash_crear(NULL);
 }
 
 void procesar_dato(count_min_sketch_t* sketch, char* clave){
-
+	unsigned long pos_1 = obtener_indice(clave, funcion_hash_1, count_min_sketch->cant);
+	unsigned long pos_2 = obtener_indice(clave, funcion_hash_2, count_min_sketch->cant);
+	unsigned long pos_3 = obtener_indice(clave, funcion_hash_3, count_min_sketch->cant);
+	sketch->array_1[pos_1]++;
+	sketch->array_2[pos_2]++;
+	sketch->array_3[pos_3]++;
+	hash_guardar(hash, clave, NULL);
 }
 
+size_t cant_apariciones(count_min_sketch_t* sketch, char* clave){
+	unsigned long pos_1 = obtener_indice(clave, funcion_hash_1, count_min_sketch->cant);
+	unsigned long pos_2 = obtener_indice(clave, funcion_hash_2, count_min_sketch->cant);
+	unsigned long pos_3 = obtener_indice(clave, funcion_hash_3, count_min_sketch->cant);
+	return obtener_max(sketch, pos_1, pos_2, pos_3);
+	
+}
 
+//destruir
 
-ver_apariciones
-
-destruir
 
 
 

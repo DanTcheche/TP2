@@ -49,8 +49,6 @@ void inicializar_tabla(campo_hash_t* tabla,size_t capacidad){
 	}
 }
 
-
-
 bool hash_redimensionar(hash_t* hash, size_t nueva_cap){
 	campo_hash_t* tabla_2 = malloc(sizeof(campo_hash_t)*nueva_cap);
 	if(!tabla_2) return false;
@@ -70,6 +68,22 @@ bool hash_redimensionar(hash_t* hash, size_t nueva_cap){
 	return true;
 }
 
+unsigned long obtener_indice(const hash_t* hash, bool* condicion, const char* clave){
+	unsigned long ind = funcion_hash((unsigned char*)clave);
+	ind = ind % hash->capacidad;
+	while(hash->tabla[ind].estado != VACIO){
+		if(hash->tabla[ind].estado == OCUPADO && (misma_clave(hash, clave, ind))){
+			*(condicion) = true;
+			return ind;
+		}
+		ind++;
+		if(ind == hash->capacidad) ind = 0;
+	}
+	return ind;
+}
+
+//		**PRIMITIVAS DEL HASH**
+
 hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
 	if(!hash) return NULL;
@@ -83,20 +97,6 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	inicializar_tabla(hash->tabla,hash->capacidad);
 	hash->destructor = destruir_dato;
 	return hash;
-}
-
-unsigned long obtener_indice(const hash_t* hash, bool* condicion, const char* clave){
-	unsigned long ind = funcion_hash((unsigned char*)clave);
-	ind = ind % hash->capacidad;
-	while(hash->tabla[ind].estado != VACIO){
-		if(hash->tabla[ind].estado == OCUPADO && (misma_clave(hash, clave, ind))){
-			*(condicion) = true;
-			return ind;
-		}
-		ind++;
-		if(ind == hash->capacidad) ind = 0;
-	}
-	return ind;
 }
 
 bool hash_guardar(hash_t* hash, const char *clave, void *dato){
