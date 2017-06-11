@@ -83,6 +83,7 @@ void procesar_dato(count_min_sketch_t* sketch, char* clave){
 	sketch->array_1[pos_1]++;
 	sketch->array_2[pos_2]++;
 	sketch->array_3[pos_3]++;
+	sketch->cant++;
 }
 
 size_t cant_apariciones(count_min_sketch_t* sketch, char* clave){
