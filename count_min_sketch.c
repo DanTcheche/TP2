@@ -1,4 +1,6 @@
-#include "hash.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #define TAM_PRIMO 105167
 
 typedef unsigned long (funcion_de_hash_t*);
@@ -9,11 +11,6 @@ typedef struct count_min_sketch{
 	size_t* array_3;
 	size_t cant;
 }count_min_sketch_t;
-
-typedef struct tweet{
-	char* hash;
-	size_t apariciones;
-}tweet_t;
 
 //		FUNCIONES DE HASHING
 
@@ -44,14 +41,16 @@ unsigned int funcion_hash_2(unsigned char *message) { //crc32b
    return ~crc;
 }
 
-long funcion_hash_3(char *str, int len) { //sdbm
-	unsigned long n = 0;
+unsigned long funcion_hash_3(char *str) { //sdbm
+        unsigned long hash = 0;
+        int c;
 
-	while (len--)
-		n = *str++ + (n << 6) + (n << 16) - n;
+        while (c = *str++)
+            hash = c + (hash << 6) + (hash << 16) - hash;
 
-	return n;
-}
+        return hash;
+    }
+
 
 unsigned long obtener_indice(char* clave, funcion_de_hash_t* funcion, cant){
 	unsigned long pos = funcion(clave);
@@ -89,7 +88,6 @@ size_t cant_apariciones(count_min_sketch_t* sketch, char* clave){
 	unsigned long pos_2 = obtener_indice(clave, funcion_hash_2, count_min_sketch->cant);
 	unsigned long pos_3 = obtener_indice(clave, funcion_hash_3, count_min_sketch->cant);
 	return obtener_max(sketch, pos_1, pos_2, pos_3);
-	
 }
 
 void sketch_destruir(count_min_sketch_t* sketch){
