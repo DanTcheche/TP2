@@ -7,6 +7,7 @@
 #include "count_min_sketch.h"
 #define ERROR_BUFFER -1
 #define ERROR_PARAMETROS -4
+#define TAM_PRIMO 105167
 
 typedef struct campo_heap{
    char* tag;
@@ -15,8 +16,8 @@ typedef struct campo_heap{
 
 /*Funcion de comparacion del heap*/
 int cmp(const void* a,const void* b){
-   campo_heap_t* item_1 = (campo_heap*)a;
-   campo_heap_t* item_2 = (campo_heap*)b;
+   campo_heap_t* item_1 = *(campo_heap)a;
+   campo_heap_t* item_2 = *(campo_heap)b;
    if(item_1->apariciones<item_2->apariciones) return 1;
    if(item_1->apariciones>item_2->apariciones) return -1;
    return 0;
@@ -26,7 +27,7 @@ int cmp(const void* a,const void* b){
 heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch){
    heap_t* heap = heap_crear(cmp);
    hash_iter_t* iter_hash = hash_iter_crear(hash);
-   while(!hash_iter_al_final(hash)){
+   while(!hash_iter_al_final(const hash)){
       char* tag = hash_iter_ver_actual(iter_hash);
       size_t apariciones = cant_apariciones(sketch, tag);
       campo_heap_t* campo;
@@ -43,10 +44,10 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch){
 int procesar_tweets(FILE* archivo, int n, int k){
    char* buffer = malloc(n+1);
    if(!buffer) return ERROR_BUFFER;
-   count_min_sketch_t* sketch = crear_sketch();
+   count_min_sketch_t* sketch = crear_sketch(TAM_PRIMO);
    hash_t* hash = crear_hash(NULL);
    size_t num;
-   cont = 0;
+   int cont = 0;
    while(cont<n){
       if(!getline(buffer, &num, archivo)) break;
       char** tags = split(buffer, ',');

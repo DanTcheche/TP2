@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "count_min_sketch.h"
-#define TAM_PRIMO 105167
 
-typedef unsigned long (*funcion_de_hash_t);
 
 typedef struct count_min_sketch{
 	size_t* array_1;
@@ -53,7 +51,7 @@ unsigned long funcion_hash_3(char *str) { //sdbm
     }
 
 
-unsigned long obtener_indice(char* clave, funcion_de_hash_t* funcion, size_t cant){
+unsigned long obtener_indice(char* clave, funcion_de_hash_t funcion, size_t cant){
 	unsigned long pos = funcion(clave);
 	pos = pos%cant;
 	return pos;
@@ -67,11 +65,11 @@ size_t obtener_max(count_min_sketch_t* sketch, unsigned long pos_1, unsigned lon
 
 //		PRIMITIVAS DEL SKETCH
 
-count_min_sketch_t* crear_sketch(){
+count_min_sketch_t* crear_sketch(size_t cant){
 	count_min_sketch_t* sketch = malloc(sizeof(count_min_sketch_t));
-	sketch->array_1 = calloc(TAM_PRIMO, sizeof(size_t));
-	sketch->array_2 = calloc(TAM_PRIMO, sizeof(size_t));
-	sketch->array_3 = calloc(TAM_PRIMO, sizeof(size_t));
+	sketch->array_1 = calloc(cant, sizeof(size_t));
+	sketch->array_2 = calloc(cant, sizeof(size_t));
+	sketch->array_3 = calloc(cant, sizeof(size_t));
 	sketch->cant = 0;
 	return sketch;
 }
