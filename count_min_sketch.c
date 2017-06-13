@@ -69,9 +69,9 @@ size_t obtener_max(count_min_sketch_t* sketch, unsigned long pos_1, unsigned lon
 
 count_min_sketch_t* crear_sketch(){
 	count_min_sketch_t* sketch = malloc(sizeof(count_min_sketch_t));
-	sketch->array_1 = calloc(sizeof(size_t)*TAM_PRIMO);
-	sketch->array_2 = calloc(sizeof(size_t)*TAM_PRIMO);
-	sketch->array_3 = calloc(sizeof(size_t)*TAM_PRIMO);
+	sketch->array_1 = calloc(TAM_PRIMO, sizeof(size_t));
+	sketch->array_2 = calloc(TAM_PRIMO, sizeof(size_t));
+	sketch->array_3 = calloc(TAM_PRIMO, sizeof(size_t));
 	sketch->cant = 0;
 	return sketch;
 }

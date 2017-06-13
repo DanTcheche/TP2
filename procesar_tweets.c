@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <cctype>
 #include "hash.h"
 #include "count_min_sketch.h"
 #define ERROR_BUFFER -1
@@ -14,15 +15,15 @@ typedef struct campo_heap{
 
 /*Funcion de comparacion del heap*/
 int cmp(const void* a,const void* b){
-   campo_heap_t* a = (campo_heap*)a;
-   campo_heap_t* b = (campo_heap*)b;
-   if(a->apariciones<b->apariciones) return 1;
-   if(a->apariciones>b->apariciones) return -1;
+   campo_heap_t* item_1 = (campo_heap*)a;
+   campo_heap_t* item_2 = (campo_heap*)b;
+   if(item_1->apariciones<item_2->apariciones) return 1;
+   if(item_1->apariciones>item_2->apariciones) return -1;
    return 0;
 }
 
 /*Funcion que recibe un hash, un sketch y crea un heap de menores con los elementos de este.*/
-heap_t* heap_menores(hast_t* hash, count_min_sketch_t* sketch){
+heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch){
    heap_t* heap = heap_crear(cmp);
    hash_iter_t* iter_hash = hash_iter_crear(hash);
    while(!hash_iter_al_final(hash)){
@@ -39,11 +40,11 @@ heap_t* heap_menores(hast_t* hash, count_min_sketch_t* sketch){
 }
 
 /*Funcion que procesa los tweets. Devuelve -1 si no se pudo crear el buffer.*/
-void procesar_tweets(FILE* archivo, int n){
+int procesar_tweets(FILE* archivo, int n, int k){
    char* buffer = malloc(n+1);
    if(!buffer) return ERROR_BUFFER;
    count_min_sketch_t* sketch = crear_sketch();
-   hast_t* hash = crear_hash(NULL);
+   hash_t* hash = crear_hash(NULL);
    size_t num;
    cont = 0;
    while(cont<n){
@@ -58,10 +59,11 @@ void procesar_tweets(FILE* archivo, int n){
       cont++;
    }
    heap_t* heap = heap_menores(hash, sketch);
-   imprimir_TT(heap, k)
+   imprimir_TT(heap, k);
    hash_destruir(hash);
    sketch_destruir(sketch);
    heap_destruir(heap);
+   return 0;
 }
 
 void imprimir_TT(heap_t* heap, int k){
@@ -81,7 +83,7 @@ bool chequear_parametros(int argc, char* argv[]){
    }
    char* cantidad = argv[1];
    char* cantidad2 = argv[2];
-   if(!chequear_parametros(cantidad) && !chequear_parametros(cantidad2)){
+   if(!chequear_digitos(cantidad) && !chequear_digitos(cantidad2)){
       printf("No ingresó un numero en ambos parametros.\n");
       return false;      
    }
@@ -91,7 +93,7 @@ bool chequear_parametros(int argc, char* argv[]){
 /*Dado un char, se fija si esta compuesto unicamente por digitos.*/
 bool chequear_digitos(char* parametro){
    for(int i = 0; parametro[i] != '\0'; i++){
-      if(!isdigit(cantidad[i])){
+      if(!isdigit(parametro[i])){
          return false;
       }
    }
