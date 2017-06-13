@@ -14,8 +14,10 @@ typedef struct campo_heap{
 
 /*Funcion de comparacion del heap*/
 int cmp(const void* a,const void* b){
-   if(*(int*)a<*(int*)b) return 1;
-   if(*(int*)a>*(int*)b) return -1;
+   campo_heap_t* a = (campo_heap*)a;
+   campo_heap_t* b = (campo_heap*)b;
+   if(*a->apariciones<*b->apariciones) return 1;
+   if(*a->apariciones>*b->apariciones) return -1;
    return 0;
 }
 
