@@ -47,12 +47,13 @@ void procesar_tweets(FILE* archivo, int n){
    size_t num;
    cont = 0;
    while(cont<n){
-      getline(buffer, &num, archivo)
+      if(!getline(buffer, &num, archivo)) break;
       char** tags = split(buffer, ',');
-      int i = 0;
+      int i = 1;
       while(tags[i]){
          procesar_dato(sketch, tags[i]);
          hash_guardar(hash, tags[i], NULL);
+         i++;
       }
       cont++;
    }
