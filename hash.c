@@ -153,7 +153,6 @@ void *hash_obtener(const hash_t *hash, const char *clave){
 }	
 
 bool hash_pertenece(const hash_t *hash, const char *clave){
-
 	bool condicion = false;
 	obtener_indice(hash, &condicion, clave);
 	return condicion;
@@ -184,7 +183,7 @@ typedef struct hash_iter{
 	const hash_t* hash;
 }hash_iter_t;
 
-hash_iter_t *hash_iter_crear(const hash_t *hash){
+hash_iter_t* hash_iter_crear(const hash_t* hash){
 	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
 	if(!iter) return NULL;
 	iter->iterados = 0;
@@ -198,11 +197,11 @@ hash_iter_t *hash_iter_crear(const hash_t *hash){
 	return iter;
 }
 
-bool hash_iter_al_final(const hash_iter_t *iter){
+bool hash_iter_al_final(const hash_iter_t* iter){
 	return iter->iterados == iter->hash->cantidad;
 }
 
-bool hash_iter_avanzar(hash_iter_t *iter){
+bool hash_iter_avanzar(hash_iter_t* iter){
 	if(hash_iter_al_final(iter)) return false;
 	iter->indice++;
 	if((iter->iterados)+1 != iter->hash->cantidad){

@@ -5,8 +5,10 @@
 #include <stddef.h>
 
 struct count_min_sketch;
+typedef unsigned long (*funcion_hast_t) (const char* clave);
 
 typedef struct sketch count_min_sketch_t;
+
 
 /* Crea el sketch.*/
 count_min_sketch_t* crear_sketch();
