@@ -16,8 +16,8 @@ typedef struct campo_heap{
 int cmp(const void* a,const void* b){
    campo_heap_t* a = (campo_heap*)a;
    campo_heap_t* b = (campo_heap*)b;
-   if(*a->apariciones<*b->apariciones) return 1;
-   if(*a->apariciones>*b->apariciones) return -1;
+   if(a->apariciones<b->apariciones) return 1;
+   if(a->apariciones>b->apariciones) return -1;
    return 0;
 }
 
@@ -39,7 +39,7 @@ heap_t* heap_menores(hast_t* hash, count_min_sketch_t* sketch){
 }
 
 /*Funcion que procesa los tweets. Devuelve -1 si no se pudo crear el buffer.*/
-void procesar_tweets(FILE* archivo, int n, int k){
+heap_t* procesar_tweets(FILE* archivo, int n){
    char* buffer = malloc(n+1);
    if(!buffer) return ERROR_BUFFER;
    count_min_sketch_t* sketch = crear_sketch();
@@ -57,13 +57,17 @@ void procesar_tweets(FILE* archivo, int n, int k){
       cont++;
    }
    heap_t* heap = heap_menores(hash, sketch);
+   hash_destruir(hash);
+   sketch_destruir(sketch);
+   return heap;
+}
+
+void imprimir_TT(heap_t* heap, int k){
    for(int i = 0, i < k, i++){
       campo_heap_t* campo = heap_desencolar(heap);
       printf("%s\n", campo->tag);
    }
    heap_destruir(heap);
-   hash_destruir(hash);
-   sketch_destruir(sketch);
 }
 
 /*Función que verifica que la cantidad de parametros sea correcta y que ambos
@@ -95,7 +99,7 @@ bool chequear_digitos(char* parametro){
 /*Main de la función. Si hubo un error en los parametros devuelve -4, de lo contrario devuelve 0.*/
 int main(int argc, char* argv[]){
    if(!(chequear_parametros(argc, argv))) return ERROR_PARAMETROS;
-   procesar_tweets(stdin, argv[1], argv[2]);
+   heap_t* heap = procesar_tweets(stdin, argv[1]);
+   imprimir_TT(heap, argv[2]);
    return 0;
-
 }
