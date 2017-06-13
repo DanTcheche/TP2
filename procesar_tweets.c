@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <cctype>
+#include <ctype.h>
 #include "hash.h"
 #include "count_min_sketch.h"
 #define ERROR_BUFFER -1
