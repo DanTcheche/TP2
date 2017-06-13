@@ -39,7 +39,7 @@ heap_t* heap_menores(hast_t* hash, count_min_sketch_t* sketch){
 }
 
 /*Funcion que procesa los tweets. Devuelve -1 si no se pudo crear el buffer.*/
-heap_t* procesar_tweets(FILE* archivo, int n){
+void procesar_tweets(FILE* archivo, int n){
    char* buffer = malloc(n+1);
    if(!buffer) return ERROR_BUFFER;
    count_min_sketch_t* sketch = crear_sketch();
@@ -57,17 +57,18 @@ heap_t* procesar_tweets(FILE* archivo, int n){
       cont++;
    }
    heap_t* heap = heap_menores(hash, sketch);
+   imprimir_TT(heap, k)
    hash_destruir(hash);
    sketch_destruir(sketch);
-   return heap;
+   heap_destruir(heap);
 }
 
 void imprimir_TT(heap_t* heap, int k){
+   printf("Historicos %d trending topics\n", k);
    for(int i = 0, i < k, i++){
       campo_heap_t* campo = heap_desencolar(heap);
       printf("%s\n", campo->tag);
    }
-   heap_destruir(heap);
 }
 
 /*Función que verifica que la cantidad de parametros sea correcta y que ambos
@@ -99,7 +100,6 @@ bool chequear_digitos(char* parametro){
 /*Main de la función. Si hubo un error en los parametros devuelve -4, de lo contrario devuelve 0.*/
 int main(int argc, char* argv[]){
    if(!(chequear_parametros(argc, argv))) return ERROR_PARAMETROS;
-   heap_t* heap = procesar_tweets(stdin, argv[1]);
-   imprimir_TT(heap, argv[2]);
+   heap_t* heap = procesar_tweets(stdin, argv[1], argv[2]);
    return 0;
 }
