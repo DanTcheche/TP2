@@ -15,10 +15,10 @@
 
 typedef struct campo_heap{
    char* tag;
-   size_t* apariciones;
+   size_t apariciones;
 }campo_heap_t;
 
-campo_heap_t* campo_heap_crear(char* tag, size_t* apariciones){
+campo_heap_t* campo_heap_crear(char* tag, size_t apariciones){
    campo_heap_t* campo = malloc(sizeof(campo_heap_t));
    if(!campo)return NULL;
    campo->tag = tag;
@@ -30,8 +30,8 @@ campo_heap_t* campo_heap_crear(char* tag, size_t* apariciones){
 int cmp(const void* a,const void* b){
    campo_heap_t* item_1 = (campo_heap_t*)a;
    campo_heap_t* item_2 = (campo_heap_t*)b;
-   if(*(item_1->apariciones) < *(item_2->apariciones)) return 1;
-   if(*(item_1->apariciones) > *(item_2->apariciones)) return -1;
+   if((item_1->apariciones) < (item_2->apariciones)) return 1;
+   if((item_1->apariciones) > (item_2->apariciones)) return -1;
    return 0;
 }
 
@@ -41,7 +41,7 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch){
    hash_iter_t* iter_hash = hash_iter_crear(hash);
    while(!hash_iter_al_final(iter_hash)){
       char* tag = hash_iter_ver_actual(iter_hash);
-      size_t* apariciones = cant_apariciones(sketch, tag);
+      size_t apariciones = cant_apariciones(sketch, tag);
       campo_heap_t* campo = campo_heap_crear(tag, apariciones);
       heap_encolar(heap, campo);
       hash_iter_avanzar(iter_hash);
@@ -54,8 +54,10 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch){
 void imprimir_TT(heap_t* heap, int k){
    printf("Historicos %d trending topics\n", k);
    for(int i = 0; i < k; i++){
-      campo_heap_t* campo = heap_desencolar(heap);
-      printf("%s\n", campo->tag);
+      if(!heap_esta_vacio(heap)){
+         campo_heap_t* campo = heap_desencolar(heap);
+         printf("%s", campo->tag);
+      }
    }
 }
 
@@ -72,7 +74,6 @@ int procesar_tweets(FILE* archivo, int n, int k){
       char** tags = split(buffer, ',');
       int i = 1;
       while(tags[i]){
-         printf("%s\n", tags[i]);
          procesar_dato(sketch, tags[i]);
          hash_guardar(hash, tags[i], NULL);
          i++;
