@@ -11,6 +11,7 @@
 #include "count_min_sketch.h"
 #define ERROR_BUFFER -1
 #define ERROR_PARAMETROS -4
+#define TAM_PRIMO 105167
 
 typedef struct campo_heap{
    char* tag;
@@ -62,7 +63,7 @@ void imprimir_TT(heap_t* heap, int k){
 int procesar_tweets(FILE* archivo, int n, int k){
    char* buffer = malloc(n+1);
    if(!buffer) return ERROR_BUFFER;
-   count_min_sketch_t* sketch = crear_sketch();
+   count_min_sketch_t* sketch = crear_sketch(TAM_PRIMO);
    hash_t* hash = hash_crear(NULL);
    size_t num;
    int cont = 0;
@@ -71,12 +72,14 @@ int procesar_tweets(FILE* archivo, int n, int k){
       char** tags = split(buffer, ',');
       int i = 1;
       while(tags[i]){
+         printf("%s\n", tags[i]);
          procesar_dato(sketch, tags[i]);
          hash_guardar(hash, tags[i], NULL);
          i++;
       }
       cont++;
    }
+
    heap_t* heap = heap_menores(hash, sketch);
    imprimir_TT(heap, k);
    hash_destruir(hash);

@@ -2,18 +2,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "count_min_sketch.h"
-#define TAM_PRIMO 105167
+
 
 typedef unsigned long (*funcion_de_hash_t)(char*);
-
-
 
 //		FUNCIONES DE HASHING
 
 unsigned long funcion_hash_1(char *str){ //djb2
     unsigned long hash = 5381;
     int c;
-    while ((c = (*str++))){
+    while ((c = ((unsigned)*str++))){
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
     }
     return hash;
@@ -58,18 +56,19 @@ size_t* obtener_max(count_min_sketch_t* sketch, unsigned long pos_1, unsigned lo
 
 //		PRIMITIVAS DEL SKETCH
 
-count_min_sketch_t* crear_sketch(){
+count_min_sketch_t* crear_sketch(size_t tamanio){
 	count_min_sketch_t* sketch = malloc(sizeof(count_min_sketch_t));
-	sketch->array_1 = calloc(TAM_PRIMO, sizeof(size_t));
-	sketch->array_2 = calloc(TAM_PRIMO, sizeof(size_t));
-	sketch->array_3 = calloc(TAM_PRIMO, sizeof(size_t));
-	sketch->cant = 0;
+	sketch->array_1 = calloc(tamanio, sizeof(size_t));
+	sketch->array_2 = calloc(tamanio, sizeof(size_t));
+	sketch->array_3 = calloc(tamanio, sizeof(size_t));
+	sketch->cant = tamanio;
 	return sketch;
 }
 
 unsigned long obtener_indice_sketch(char* clave, funcion_de_hash_t funcion, size_t cant){
+  printf("%d\n", (int)cant);
   unsigned long pos = funcion(clave);
-  pos = pos%cant;
+  pos = pos%(int)cant;
   return pos;
 }
 
@@ -80,7 +79,6 @@ void procesar_dato(count_min_sketch_t* sketch, char* clave){
 	sketch->array_1[pos_1]++;
 	sketch->array_2[pos_2]++;
 	sketch->array_3[pos_3]++;
-	sketch->cant++;
 }
 
 size_t* cant_apariciones(count_min_sketch_t* sketch, char* clave){
