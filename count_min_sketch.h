@@ -5,27 +5,26 @@
 #include <stddef.h>
 
 struct count_min_sketch;
-typedef unsigned long (*funcion_hash_t) (const char* clave);
+typedef unsigned long (*funcion_hast_t) (const char* clave);
 
-typedef struct sketch count_min_sketch_t;
+typedef struct count_min_sketch{
+	size_t* array_1;
+	size_t* array_2;
+	size_t* array_3;
+	size_t cant;
+} count_min_sketch_t;
 
 
-/* Crea el count_min_sketch.*/
-count_min_sketch_t* crear_sketch(size_t cant);
+/* Crea el sketch.*/
+count_min_sketch_t* crear_sketch();
 
-/*Recibe clave por parametro y le suma uno a la posicion correspondiente.
-Pre: se creo el count_min_sketch.
-Post: aumento en una el valor en al posicion correspondiente de todas las tablas*/
-
+/*Recibe clave por parametro y le suma uno a la posicion correspondiente.*/
 void procesar_dato(count_min_sketch_t* sketch, char* clave);
 
-/*Devuelve la minima cantidad de apariciones en las 3 tablas dada una clave.
-Pre: se creo el count_min_sketch.
-Post: se devuelve la cantidad minima de aparciones*/
-size_t cant_apariciones(count_min_sketch_t* sketch, char* clave);
+/*Devuelve la minima cantidad de apariciones dada una clave.*/
+size_t* cant_apariciones(count_min_sketch_t* sketch, char* clave);
 
-/*Destruye el count_min_sketch.
-Pre: se creo el count_min_sketch.*/
+/*Destruye el sketch.*/
 void sketch_destruir(count_min_sketch_t* sketch);
 
-#endif // SKETCH_H
+#endif // HASH_H

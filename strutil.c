@@ -1,133 +1,143 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdio.h>
 
-/*Recibe una cadena como parametro y devuelve un puntero a una copia de esa cadena*/
-char* strdup(const char* cadena){
-	char* cadena_nueva;
-	cadena_nueva = malloc(strlen(cadena)+1);
-	if(!cadena_nueva) return NULL;
-	strcpy(cadena_nueva, cadena);
-	cadena_nueva[strlen(cadena)] = '\0';
-	return cadena_nueva;
-}
+	/***FUNCIONES AUXILIARES***/
 
-/*Libera la memoria del strv y todos sus elementos.*/
-void free_strv(char* strv[]){
-	int pos = 0;
-	while(strv[pos]){
-		free(strv[pos]);
-		pos++;
+/*
+ Pre: La memoria no fue liberada previamente.
+ Post: Libera la memoria de los componentes del arreglo de cadenas y luego el arreglo.
+ */
+void free_strv(char** strv){
+	int indice=0;
+	while(strv[indice]){
+		free(strv[indice]);
+		indice++;
 	}
 	free(strv);
 }
 
-/*Cuenta la cantidad de apariciones de un caracter en una cadena.*/
-int contar_sep(const char* cadena, char sep){
-	int cant_de_caracteres = 0;
-	int cant_seps = 0;
-	while(cadena[cant_de_caracteres] != '\0'){
-		if(cadena[cant_de_caracteres] == sep){
-			cant_seps++;
+
+char* strdup(const char* old){
+	char* new;
+	new = malloc(strlen(old)+1);
+	if(!new) return NULL;
+	
+	strcpy(new,old);
+	return new;
+}
+/*Obtiene la cantidad cadenas que va a haber en el arreglo + 1 por NULL*/
+void obtener_cantidad(int* cant,const char* str, char sep){
+	int indice =0;
+	char c = str[indice];
+	
+	while(c != '\0'){
+		if (c == sep){
+			*(cant)+= 1;
+
+
 		}
-		cant_de_caracteres++;
+		indice++;	
+		c= str[indice];
+		
 	}
-	return cant_seps;
+	*(cant)+=1 ;
+
+}	
+void contar_caracteres(char** strv, int* cantidad){
+	int indice = 0;
+	while(strv[indice]){
+		
+		(*cantidad) += (int)strlen(strv[indice]);
+		indice++;
+	}
+	*cantidad += indice;
 }
 
-int contar_carac_pos(const char* cadena, char sep){
-	int cant_de_caracteres = 0;
-	while(cadena[cant_de_caracteres] != '\0'){
-		if(cadena[cant_de_caracteres] == sep) break;
-		cant_de_caracteres++;
-	}
-	return cant_de_caracteres;
-}
+/*** JOIN ***/
 
-/* Devuelve en un arreglo dinámico terminado en NULL con todos los subsegmentos
- * de 'str' separados por el carácter 'sep'. Tanto el arreglo devuelto como las
- * cadenas que contiene son allocadas dinámicamente.
- *
- * Quien llama a la función toma responsabilidad de la memoria dinámica del
- * arreglo devuelto. La función devuelve NULL si falló alguna llamada a
- * malloc(), o si 'sep' es '\0'.
- */
-char** split(const char* cadena, char sep){
-	if(sep == '\0') return NULL;
-	int cant_seps = contar_sep(cadena, sep);
-	char** strv = malloc(sizeof(char**)*(cant_seps+2));
-	if(!strv) return NULL;
-	if(cant_seps == 0){
-		strv[0] = strdup(cadena);
-		strv[1] = NULL;
-		return strv;
-	}
-	int pos = 0;
-	int cont_aux = 0;
-	while(pos != cant_seps+1){
-		size_t caracteres = contar_carac_pos(&cadena[cont_aux], sep);
-		char cadena_aux[caracteres+1];
-		if(caracteres == 0){
-			strv[pos] = strdup("");
-		}
-		else{
-			for (int i = 0; i < caracteres; ++i){
-				cadena_aux[i] = cadena[cont_aux+i];
-			}
-		cadena_aux[caracteres] = '\0';
-		strv[pos] = strdup(cadena_aux);
-		}
-		pos++;
-		cont_aux += (int)caracteres+1;
-	}
-	strv[cant_seps+1] = NULL;
-	return strv;
-}
-
-/*Recibe un strv por parametro y devuelve la suma de los caracteres de todos los elementos.*/
-size_t contar_caracteres(char** strv){
-	int pos = 0;
-	size_t largo_cadena = 0;
-	while(strv[pos] != NULL){
-		largo_cadena += strlen(strv[pos]);
-		pos++;
-	}
-	largo_cadena += (pos);
-	return largo_cadena;
-}
-
-/* Devuelve una cadena, allocada dinámicamente, resultado de unir todas las
+/*
+ * Devuelve una cadena, allocada dinámicamente, resultado de unir todas las
  * cadenas del arreglo terminado en NULL 'strv'.
  *
  * Quien llama a la función toma responsabilidad de la memoria dinámica de la
- * cadena devuelta. La función devuelve NULL si no se pudo allocar memoria o
- * o si 'sep' es '\0'.
+ * cadena devuelta. La función devuelve NULL si no se pudo allocar memoria,
+ * si 'sep' es '\0' o si recibe un strv vacio.
  */
 char* join(char** strv, char sep){
 	if(sep == '\0') return NULL;
-	size_t caracteres = contar_caracteres(strv);
-	char* cadena = malloc(((int)caracteres)+2);
-	if(!cadena) return NULL;
+	char new_sep[] = {sep,'\0'};
+	int cantidad = 0;
+
+	contar_caracteres(strv,&cantidad);
+	if(!cantidad) cantidad = 1;
+
+	char* res= malloc(cantidad*sizeof(char));
+	if(!res) return NULL;
 	int indice = 0;
-	int pos = 0;
-	while(strv[indice] != NULL){
-		int contador = 0;
-		char caracter = strv[indice][contador];
-		while(caracter != '\0'){
-			cadena[pos] = caracter;
-			contador++;
-			pos++;
-			caracter = strv[indice][contador];
-		}
-		cadena[pos] = sep;
-		pos++;
+	res[0] = '\0';
+	char* posicion_mem = res;
+
+	while(strv[indice]){
+		
+		posicion_mem = strcat( posicion_mem,strv[indice]);
+
+		posicion_mem += strlen(strv[indice]);
+
+		if(strv[indice+1]) posicion_mem = strcat(posicion_mem,&new_sep[0]);
+
+		posicion_mem++;
 		indice++;
+
 	}
-	if (caracteres == 0){
-		cadena[caracteres] = '\0';
+	return res;
+}
+
+
+/*** SPLIT ***/
+
+/*Devuelve en un arreglo dinámico terminado en NULL con todos los subsegmentos
+  de ‘str’ separados por el carácter ‘sep’. Tanto el arreglo devuelto como las
+  cadenas que contiene son allocadas dinámicamente.
+ 
+  Quien llama a la función toma responsabilidad de la memoria dinámica del
+  arreglo devuelto. La función devuelve NULL si falló alguna llamada a
+  malloc(), o si ‘sep’ es '\0'.
+ */
+char** split(const char* str, const char sep){
+	if(sep == '\0') return NULL;
+	int cantidad = 1;
+	obtener_cantidad(&cantidad,str, sep);
+
+
+
+	char** res = malloc((sizeof(char*)) * (cantidad));
+
+	if(!res)return NULL;
+	int indice = 0;
+	int contador_max = 0;
+	int contador_min = 0;
+	char caracter = str[contador_max];
+	int largo = (int)strlen(str)+1;
+
+
+	for(int in = contador_min; in < largo; in++){
+		if (caracter == sep || caracter == '\0'){
+			char aux[contador_max - contador_min + 1];
+			int posicion_aux = 0;
+			for(int i = contador_min; i < contador_max; i++){
+				aux[posicion_aux] = str[i];
+				posicion_aux++;
+			}
+			aux[contador_max - contador_min] = '\0';
+			contador_min = contador_max+1;
+			res[indice] = strdup(aux);
+			indice++;
+		}
+		contador_max++;
+		caracter = str[contador_max];
 	}
-	else{
-		cadena[caracteres-1] = '\0';
-	}
-	return cadena;
+	res[indice] = NULL;
+	return res;
 }
