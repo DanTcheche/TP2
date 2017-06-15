@@ -67,7 +67,6 @@ unsigned long obtener_indice_sketch(char* clave, funcion_de_hash_t funcion, size
 
 /*Crea un sketch.*/
 count_min_sketch_t* crear_sketch(size_t tamanio){
-  printf("%d\n", (int)tamanio);
 	count_min_sketch_t* sketch = malloc(sizeof(count_min_sketch_t));
 	sketch->array_1 = calloc(tamanio, sizeof(size_t));
   if(!sketch->array_1) return NULL;
@@ -87,12 +86,6 @@ count_min_sketch_t* crear_sketch(size_t tamanio){
 }
 
 void procesar_dato(count_min_sketch_t* sketch, char* clave){
-  printf("SADASD\n");
-  for(int i=0; i<sketch->cant;i++){
-    printf("AS\n");
-    printf("%d\n", (int)sketch->array_1[i]);
-  }
-  printf("HOLA\n");
 	unsigned long pos_1 = obtener_indice_sketch(clave, funcion_hash_1, sketch->cant);
 	unsigned long pos_2 = obtener_indice_sketch(clave, funcion_hash_2, sketch->cant);
 	unsigned long pos_3 = obtener_indice_sketch(clave, funcion_hash_3, sketch->cant);
