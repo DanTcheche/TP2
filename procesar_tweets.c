@@ -10,8 +10,11 @@
 #include "heap.h"
 #include "count_min_sketch.h"
 #define ERROR_BUFFER -1
-#define ERROR_PARAMETROS -4
-#define TAM_PRIMO 105167
+#define ERROR_SKETCH -2
+#define ERROR_HASH -3
+#define ERROR_HEAP -4
+#define ERROR_PARAMETROS -5
+#define TAM_PRIMO 50023
 
 typedef struct campo_heap{
    char* tag;
@@ -38,11 +41,14 @@ int cmp(const void* a,const void* b){
 /*Funcion que recibe un hash, un sketch y crea un heap de menores con los elementos de este.*/
 heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
    heap_t* heap = heap_crear(cmp);
+   if(!heap) return NULL;
    hash_iter_t* iter_hash = hash_iter_crear(hash);
+   if(!iter_hash) return NULL;
    while(!hash_iter_al_final(iter_hash)){
       char* tag = hash_iter_ver_actual(iter_hash);
       size_t apariciones = cant_apariciones(sketch, tag);
       campo_heap_t* campo = campo_heap_crear(tag, apariciones);
+      if(!campo) return NULL;
       if(heap_cantidad(heap)>k){
          campo_heap_t* campo_2 = heap_ver_max(heap);
          if(campo->apariciones > campo_2->apariciones){
@@ -65,12 +71,15 @@ void imprimir_TT(heap_t* heap, int k){
       }
    }
 
-/*Funcion que procesa los tweets. Devuelve -1 si no se pudo crear el buffer.*/
+/*Funcion que procesa los tweets. Devuelve -1 si no se pudo crear el buffer, -2 si 
+no se pudo crear el sketch, -3 si no se pudo crear el hash y -4 si no se pudo crear el heap.*/
 int procesar_tweets(FILE* archivo, int n, int k){
    char* buffer = malloc(n+1);
    if(!buffer) return ERROR_BUFFER;
    count_min_sketch_t* sketch = crear_sketch(TAM_PRIMO);
+   if(!sketch) return ERROR_SKETCH;
    hash_t* hash = hash_crear(NULL);
+   if(!hash) return ERROR_HASH;
    size_t num;
    int cont = 0;
    while(cont<n){
@@ -86,6 +95,7 @@ int procesar_tweets(FILE* archivo, int n, int k){
    }
 
    heap_t* heap = heap_menores(hash, sketch, k);
+   if(!heap) return ERROR_HEAP;
    imprimir_TT(heap, k);
    hash_destruir(hash);
    sketch_destruir(sketch);
@@ -119,11 +129,12 @@ bool chequear_parametros(int argc, char* argv[]){
    return true;
 }
 
-/*Main de la función. Si hubo un error en los parametros devuelve -4, de lo contrario devuelve 0.*/
+/*Main de la función. Si hubo un error en los parametros devuelve -5, de lo contrario devuelve 0.*/
 int main(int argc, char* argv[]){
    if(!(chequear_parametros(argc, argv))) return ERROR_PARAMETROS;
    int lineas = atoi(argv[1]);
    int TT = atoi(argv[2]);
-   procesar_tweets(stdin, lineas, TT);
+   int ok = procesar_tweets(stdin, lineas, TT);
+   printf("%d\n", ok);
    return 0;
 }
