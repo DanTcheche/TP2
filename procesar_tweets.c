@@ -55,7 +55,8 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
       else{
          campo_heap_t* campo_2 = heap_ver_max(heap);
          if(campo->apariciones > campo_2->apariciones){
-            heap_desencolar(heap);
+            campo_heap_t* campo = heap_desencolar(heap);
+            free(campo);
             heap_encolar(heap, campo);
          }
       }
@@ -73,6 +74,7 @@ void imprimir_TT(heap_t* heap, int k){
    while(!heap_esta_vacio(heap)){
          campo_heap_t* campo = heap_desencolar(heap);
          TT[i] = campo->tag;
+         free(campo);
          i++;
       }
    for(i = k-1; i >= 0; i--){
