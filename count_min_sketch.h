@@ -1,30 +1,26 @@
 #ifndef COUNT_MIN_SKETCH_H
 #define COUNT_MIN_SKETCH_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-struct count_min_sketch;
-typedef unsigned long (*funcion_hast_t) (const char* clave);
+typedef struct count_min_sketch count_min_sketch_t;
 
-typedef struct count_min_sketch{
-	size_t* array_1;
-	size_t* array_2;
-	size_t* array_3;
-	size_t cant;
-} count_min_sketch_t;
-
+typedef unsigned long (*funcion_de_hash_t)(char*);
 
 /* Crea el sketch.*/
-count_min_sketch_t* crear_sketch();
+count_min_sketch_t* crear_sketch(size_t cant);
 
 /*Recibe clave por parametro y le suma uno a la posicion correspondiente.*/
 void procesar_dato(count_min_sketch_t* sketch, char* clave);
 
 /*Devuelve la minima cantidad de apariciones dada una clave.*/
-size_t* cant_apariciones(count_min_sketch_t* sketch, char* clave);
+size_t cant_apariciones(count_min_sketch_t* sketch, char* clave);
 
 /*Destruye el sketch.*/
 void sketch_destruir(count_min_sketch_t* sketch);
 
-#endif // HASH_H
+#endif //

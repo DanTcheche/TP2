@@ -124,7 +124,7 @@ bool heap_encolar(heap_t *heap, void* elem){
 	return true;
 }
 
-void* heap_ver_max(const heap_t *heap){
+void* heap_ver_max(const heap_t* heap){
 	if(heap->cantidad == 0) return NULL;
 	return heap->elementos[0];
 }

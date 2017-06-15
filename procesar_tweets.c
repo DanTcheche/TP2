@@ -36,13 +36,19 @@ int cmp(const void* a,const void* b){
 }
 
 /*Funcion que recibe un hash, un sketch y crea un heap de menores con los elementos de este.*/
-heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch){
+heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
    heap_t* heap = heap_crear(cmp);
    hash_iter_t* iter_hash = hash_iter_crear(hash);
    while(!hash_iter_al_final(iter_hash)){
       char* tag = hash_iter_ver_actual(iter_hash);
       size_t apariciones = cant_apariciones(sketch, tag);
       campo_heap_t* campo = campo_heap_crear(tag, apariciones);
+      if(heap_cantidad(heap)>k){
+         campo_heap_t* campo_2 = heap_ver_max(heap);
+         if(campo->apariciones > campo_2->apariciones){
+            heap_desencolar(heap);
+         }
+      }
       heap_encolar(heap, campo);
       hash_iter_avanzar(iter_hash);
    }
@@ -53,13 +59,11 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch){
 /*Imprime por consola los k TT.*/
 void imprimir_TT(heap_t* heap, int k){
    printf("Historicos %d trending topics\n", k);
-   for(int i = 0; i < k; i++){
-      if(!heap_esta_vacio(heap)){
+   while(!heap_esta_vacio(heap)){
          campo_heap_t* campo = heap_desencolar(heap);
          printf("%s", campo->tag);
       }
    }
-}
 
 /*Funcion que procesa los tweets. Devuelve -1 si no se pudo crear el buffer.*/
 int procesar_tweets(FILE* archivo, int n, int k){
@@ -81,7 +85,7 @@ int procesar_tweets(FILE* archivo, int n, int k){
       cont++;
    }
 
-   heap_t* heap = heap_menores(hash, sketch);
+   heap_t* heap = heap_menores(hash, sketch, k);
    imprimir_TT(heap, k);
    hash_destruir(hash);
    sketch_destruir(sketch);

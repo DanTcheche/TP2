@@ -65,7 +65,7 @@ hash_iter_t *hash_iter_crear(const hash_t *hash);
 bool hash_iter_avanzar(hash_iter_t *iter);
 
 // Devuelve clave actual, esa clave no se puede modificar ni liberar.
-const char *hash_iter_ver_actual(const hash_iter_t *iter);
+char *hash_iter_ver_actual(const hash_iter_t *iter);
 
 // Comprueba si terminó la iteración
 bool hash_iter_al_final(const hash_iter_t *iter);

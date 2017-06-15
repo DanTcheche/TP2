@@ -39,7 +39,7 @@ unsigned long funcion_hash(unsigned char *str){
     return hash;
 }
 
-float factor_de_carga(hash_t* hash){
+float factor_de_carga_hash(hash_t* hash){
 	return (float)(hash->cantidad)/(float)(hash->capacidad);
 }
 
@@ -117,7 +117,7 @@ bool hash_guardar(hash_t* hash, const char *clave, void *dato){
 	hash->tabla[indice].dato = dato;
 	hash->tabla[indice].estado = OCUPADO;
 	hash->cantidad++;
-	if(factor_de_carga(hash) >= CARGA_MAX){
+	if(factor_de_carga_hash(hash) >= CARGA_MAX){
 		bool res = hash_redimensionar(hash, hash->capacidad*2);
 		if(!res){
 			free(clave_2);
@@ -135,7 +135,7 @@ void* hash_borrar(hash_t* hash, const char *clave){
 			hash->cantidad--;
 			free(hash->tabla[indice].clave);
 			void* aux = hash->tabla[indice].dato;
-			float carga = factor_de_carga(hash);
+			float carga = factor_de_carga_hash(hash);
 			if(carga < CARGA_MIN && hash->capacidad > CAP_INICIAL){
 				bool res = hash_redimensionar(hash, hash->capacidad/2);
 				if(!res) return NULL;
@@ -214,9 +214,9 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 	return true;
 }
 
-const char* hash_iter_ver_actual(const hash_iter_t *iter){
+char* hash_iter_ver_actual(const hash_iter_t *iter){
 	if(hash_iter_al_final(iter)) return NULL;
-	const char* aux = iter->hash->tabla[iter->indice].clave;
+	char* aux = iter->hash->tabla[iter->indice].clave;
 	return aux;
 }
 
