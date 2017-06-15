@@ -55,15 +55,17 @@ void imprimir_heap(heap_t* heap){
 			campo_heap_t* campo_2 = heap_ver_max(heap);
 			if(*(campo_2->tags) == *(tag)){
 				printf(", %s", campo_2->users);
-				heap_desencolar(heap);
+				free(heap_desencolar(heap));
 			}
 			else{
 				printf("\n");
 				break;
 			}
 		}
+		free(campo);
 	}
 	printf("\n");
+
 }
 
 
@@ -71,12 +73,14 @@ int procesar_usuarios(char* file){
 	FILE* archivo = fopen(file, "r");
 
 	if(!archivo) return -1;
-	hash_t* hash = hash_crear(NULL);
+	hash_t* hash = hash_crear(free);
 	size_t n;
 	char* str = NULL;
 
 	while(getline(&str,&n,archivo) > 0){
+
 		char** process = split(str,',');
+		free(str);
 		char* user = process[0];		
 	
 		if (!hash_pertenece(hash,user)){
@@ -94,13 +98,20 @@ int procesar_usuarios(char* file){
 
 			indice++;
 		}
+		n = 0;
+		//free(str);
 		free_strv(process);
 
 	}
-	
+	free(str);
 	fclose(archivo);
 	heap_t* heap = heap_menores(hash);
 	imprimir_heap(heap);
+	heap_destruir(heap,NULL);
+	hash_destruir(hash);
+
+
+	
 	return 0;
 }
 
