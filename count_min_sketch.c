@@ -90,8 +90,8 @@ void procesar_dato(count_min_sketch_t* sketch, char* clave){
 	unsigned long pos_2 = obtener_indice_sketch(clave, funcion_hash_2, sketch->cant);
 	unsigned long pos_3 = obtener_indice_sketch(clave, funcion_hash_3, sketch->cant);
 	sketch->array_1[pos_1]++;
-	sketch->array_2[pos_2]++;
-	sketch->array_3[pos_3]++;
+  sketch->array_2[pos_2]++;
+  sketch->array_3[pos_3]++;
 }
 
 size_t cant_apariciones(count_min_sketch_t* sketch, char* clave){
