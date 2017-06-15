@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "strutil.h"
 #include "hash.h"
 #include "heap.h"
 
