@@ -48,6 +48,8 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
       char* tag = hash_iter_ver_actual(iter_hash);
       size_t apariciones = cant_apariciones(sketch, tag);
       campo_heap_t* campo = campo_heap_crear(tag, apariciones);
+      printf("%s : %d\n",campo->tag, (int)campo->apariciones);
+
       if(!campo) return NULL;
       if(heap_cantidad(heap)>k){
          campo_heap_t* campo_2 = heap_ver_max(heap);
@@ -74,6 +76,7 @@ void imprimir_TT(heap_t* heap, int k){
 /*Procesa una linea del archivo. Se han creado el sketch y el hash correctamente.*/
 void procesar_linea(count_min_sketch_t* sketch, hash_t* hash, char* buffer){
    int i = 1;
+   buffer[strcspn(buffer,"\n")] = '\0';
    char** tags = split(buffer, ',');
    while(tags[i]){
       procesar_dato(sketch, tags[i]);
@@ -97,6 +100,7 @@ int procesar_tweets(FILE* archivo, int n, int k){
       if(getline(&buffer, &num, archivo)<0) break;
       procesar_linea(sketch, hash, buffer);
       cont++;
+      num = 0;
       free(buffer);
    }
    heap_t* heap = heap_menores(hash, sketch, k);
