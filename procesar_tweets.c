@@ -48,7 +48,6 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
       char* tag = hash_iter_ver_actual(iter_hash);
       size_t apariciones = cant_apariciones(sketch, tag);
       campo_heap_t* campo = campo_heap_crear(tag, apariciones);
-      printf("%s : %d\n",campo->tag, (int)campo->apariciones);
       if(!campo) return NULL;
       if(heap_cantidad(heap)<k){
          heap_encolar(heap, campo);
@@ -60,7 +59,6 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
             heap_encolar(heap, campo);
          }
       }
-      
       hash_iter_avanzar(iter_hash);
    }
    hash_iter_destruir(iter_hash);
@@ -70,11 +68,17 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
 /*Imprime por consola los k TT.*/
 void imprimir_TT(heap_t* heap, int k){
    printf("Historicos %d trending topics\n", k);
+   int i = 0;
+   char* TT[k];
    while(!heap_esta_vacio(heap)){
          campo_heap_t* campo = heap_desencolar(heap);
-         printf("%s\n", campo->tag);
+         TT[i] = campo->tag;
+         i++;
       }
+   for(i = k-1; i >= 0; i--){
+      printf("%s\n", TT[i]);
    }
+}
 
 /*Procesa una linea del archivo. Se han creado el sketch y el hash correctamente.*/
 void procesar_linea(count_min_sketch_t* sketch, hash_t* hash, char* buffer){
@@ -147,6 +151,5 @@ int main(int argc, char* argv[]){
    int lineas = atoi(argv[1]);
    int TT = atoi(argv[2]);
    int ok = procesar_tweets(stdin, lineas, TT);
-   printf("%d\n", ok);
-   return 0;
+   return ok;
 }
