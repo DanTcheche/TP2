@@ -49,15 +49,18 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
       size_t apariciones = cant_apariciones(sketch, tag);
       campo_heap_t* campo = campo_heap_crear(tag, apariciones);
       printf("%s : %d\n",campo->tag, (int)campo->apariciones);
-
       if(!campo) return NULL;
-      if(heap_cantidad(heap)>k){
+      if(heap_cantidad(heap)<k){
+         heap_encolar(heap, campo);
+      }
+      else{
          campo_heap_t* campo_2 = heap_ver_max(heap);
          if(campo->apariciones > campo_2->apariciones){
             heap_desencolar(heap);
+            heap_encolar(heap, campo);
          }
       }
-      heap_encolar(heap, campo);
+      
       hash_iter_avanzar(iter_hash);
    }
    hash_iter_destruir(iter_hash);
@@ -69,7 +72,7 @@ void imprimir_TT(heap_t* heap, int k){
    printf("Historicos %d trending topics\n", k);
    while(!heap_esta_vacio(heap)){
          campo_heap_t* campo = heap_desencolar(heap);
-         printf("%s", campo->tag);
+         printf("%s\n", campo->tag);
       }
    }
 
