@@ -5,115 +5,103 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "strutil.h"
+#include "lista.h"
 #include "hash.h"
-#include "heap.h"
+/*Funcion que devuelve el mayor valor en una tabla de hash.*/
+int obtener_max_tag(hash_t* hashe){
+	int tag_max = 0;
+	if(hash_cantidad(hashe) == 0) return max_tag;
+	hash_iter_t* iter = hash_iter_crear(hashe);
 
-typedef struct campo_heap{
-   char* users;
-   int* tags;
-}campo_heap_t;
-
-/*Funcion de comparacion del heap*/
-int cmp(const void* a,const void* b){
-   campo_heap_t* item_1 = (campo_heap_t*)a;
-   campo_heap_t* item_2 = (campo_heap_t*)b;
-   if(*(item_1->tags) < *(item_2->tags)) return 1;
-   if(*(item_1->tags) > *(item_2->tags)) return -1;
-   return 0;
-}
-
-campo_heap_t* campo_heap_crear(int* tags,char* user){
-	campo_heap_t* campo = malloc(sizeof(campo_heap_t));
-	if(!campo)return NULL;
-	campo->tags = tags;
-	campo->users = user;
-	return campo;
-}
-
-/*Funcion que recibe un hash, crea un heap de menores con los elementos de este.*/
-heap_t* heap_menores(hash_t* hash){
-   heap_t* heap = heap_crear(cmp);
-   hash_iter_t* iter = hash_iter_crear(hash);
-   while(!hash_iter_al_final(iter)){
-      char* user = hash_iter_ver_actual(iter);
-      int* tags = hash_obtener(hash,user);
-      campo_heap_t* campo = campo_heap_crear(tags,user);
-      if(!campo)return NULL;
-      heap_encolar(heap, campo);
-      hash_iter_avanzar(iter);
-   }
-   hash_iter_destruir(iter);
-   return heap;
-}
-
-void imprimir_heap(heap_t* heap){
-	while(!heap_esta_vacio(heap)){
-		campo_heap_t* campo = heap_desencolar(heap);
-		int* tag = campo->tags;
-		printf("%d: %s", *tag, campo->users);
-		while(!heap_esta_vacio(heap)){
-			campo_heap_t* campo_2 = heap_ver_max(heap);
-			if(*(campo_2->tags) == *(tag)){
-				printf(", %s", campo_2->users);
-				free(heap_desencolar(heap));
-			}
-			else{
-				printf("\n");
-				break;
-			}
-		}
-		free(campo);
+	while(!hash_iter_al_final(iter)){
+		int* tags = hash_obtener(hashe,hash_iter_ver_actual(iter));
+		if(*tags > tag_max) tag_max = *tags;
+		hash_iter_avanzar(iter);
 	}
-	printf("\n");
-
+	hash_iter_destruir(iter);
+	return tag_max;
 }
-
-
+/*Funcion que imprime los elementos de una lista*/
+void imprimir_lista(lista_t* lista, int tag){
+	if(lista_esta_vacia(lista))return;
+	printf("%d: ", tag );
+	while(!lista_esta_vacia(lista)){
+		char* user = lista_borrar_primero(lista);
+		if(lista_largo(lista) == 0){
+			printf("%s\n",user);
+			return;
+		}
+		printf("%s, ",user );
+	}
+}
+/*Funcion que crea una lista enlazada para cada elemento de una lista_t**. Memoria a cargo del Usuario */
+bool inicilaizar_listas(lista_t** lista, int rango){
+	for(int i = 0; i < rango; i++ ){
+		if(!(lista[i] = lista_crear()))return false;
+	}
+	return true;
+}
+/*Recorre y destruye las listas de una array lista_t**. No destruye los datos de las listas*/
+void destruir_listas(lista_t** listas, int rango){
+	for(int i = 0; i < rango; i++){
+		lista_destruir(listas[i],NULL);
+	}
+}
+ /*Realiza bucket sort con los usuarios de un hash, segun su valor en una lista previamente inicializada */
+void completar_listas_con_usuarios(hash_t* hash, lista_t** listas){
+	hash_iter_t* iter_h = hash_iter_crear(hash);
+	while(!hash_iter_al_final(iter_h)){
+		char* user = hash_iter_ver_actual(iter_h);
+		int* aux = hash_obtener(hash,user);
+		lista_insertar_ultimo(listas[*aux], user);
+		hash_iter_avanzar(iter_h);
+	}
+	hash_iter_destruir(iter_h);
+}
+/*Funcion que recorre un archivo de la forma Usuario, tags, tags, etc.
+ Muestra por pantalla la cantidad de tags de cada usuario*/
 int procesar_usuarios(char* file){
 	FILE* archivo = fopen(file, "r");
-
 	if(!archivo) return -1;
 	hash_t* hash = hash_crear(free);
 	size_t n;
 	char* str = NULL;
-
 	while(getline(&str,&n,archivo) > 0){
-
 		char** process = split(str,',');
 		free(str);
 		char* user = process[0];		
-	
 		if (!hash_pertenece(hash,user)){
 			int* value = calloc(1,sizeof(int));
-     		
 			hash_guardar(hash,user,value);
-			}
-
+		}
 		int* cant_tags = hash_obtener(hash,user);
-
 		int indice =1;
-
 		while(process[indice]){
 			*(cant_tags) += 1;
-
 			indice++;
 		}
 		n = 0;
-		//free(str);
 		free_strv(process);
-
 	}
 	free(str);
 	fclose(archivo);
-	heap_t* heap = heap_menores(hash);
-	imprimir_heap(heap);
-	heap_destruir(heap,NULL);
+
+	int max_tag = obtener_max_tag(hash);
+	lista_t* listas[max_tag+1];
+	if(!inicilaizar_listas(listas, max_tag+1))return -2;
+	completar_listas_con_usuarios(hash,listas);
+
+	for(int ind = 0; ind < max_tag+1; ind++){
+		if(listas[ind] == 0) continue;
+		imprimir_lista(listas[ind],ind);
+	}
+
+	destruir_listas(listas, max_tag);
 	hash_destruir(hash);
-
-
-	
 	return 0;
 }
+
+
 
 int main(int argc,char* argv[]) {
 	if(argc != 2){
