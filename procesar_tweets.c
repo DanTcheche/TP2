@@ -74,7 +74,7 @@ heap_t* heap_menores(hash_t* hash, count_min_sketch_t* sketch, int k){
 void imprimir_TT(heap_t* heap, int k){
    printf("Historicos %d trending topics: \n", k);
    int i = 0;
-   char** TT = calloc(k, sizeof(char*));
+   char* TT[k];
    while(!heap_esta_vacio(heap)){
    		campo_heap_t* campo = heap_desencolar(heap);
 		TT[i] = campo->tag;
